@@ -3,23 +3,20 @@
   <title>Physics MCQ Test with Monitoring</title>
   <style>
     body {
-      background: #222;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-    }
+  background: linear-gradient(to right, #1e3c72, #2a5298);
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 30px;
+  max-width: 1000px;
+  margin: auto;
+  animation: fadeIn 1s ease-in;
+}
     h1, h2 {
       text-align: center;
     }
     video {
-      width: 300px;
-      border: 3px solid #fff;
-      border-radius: 10px;
-      margin: 20px auto;
-      display: block;
-    }
+  display: none;
+}
     .question {
       margin: 20px 0;
       padding: 15px;
@@ -56,7 +53,13 @@
       margin-bottom: 20px;
       color: #ff0;
     }
-  </style>
+  @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.question { animation: slideUp 0.5s ease forwards; } </style>
+
 </head>
 <body>
   <h1>Physics MCQ Test with Monitoring</h1>
